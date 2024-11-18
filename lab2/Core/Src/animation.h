@@ -3,32 +3,33 @@
 
 #include "stm32f4xx_hal.h"
 
-typedef struct Circle {
-  uint32_t tick;
-  uint32_t delay;
+typedef struct {
   int index;
 } Circle;
 
-typedef struct Filling {
-  uint32_t tick;
-  uint32_t delay;
+typedef struct {
   GPIO_PinState state;
 } Filling;
 
-typedef struct Steps {
-  uint32_t tick;
-  uint32_t delay;
+typedef struct {
   int dir;
   int index;
 } Steps;
 
-typedef struct Cross {
-  uint32_t tick;
-  uint32_t delay;
+typedef struct {
   int index;
 } Cross;
 
-typedef struct AnimationsState {
+typedef enum {
+  kCircle,
+  kFilling,
+  kSteps,
+  kCross
+} Animation;
+
+#define ANIMATIONS_AMOUNT (kCross + 1)
+
+typedef struct {
   union {
     Circle circle;
     Filling filling;
@@ -36,7 +37,8 @@ typedef struct AnimationsState {
     Cross cross;
   };
   uint32_t delay;
-  int index;
+  uint32_t tick;
+  Animation index;
 } AnimationsState;
 
 void next_animation();

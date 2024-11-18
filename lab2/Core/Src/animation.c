@@ -1,68 +1,53 @@
 #include "animation.h"
 
-#define arrlen(arr) (sizeof(arr) / sizeof(*arr))
+#define ARRLEN(arr) (sizeof(arr) / sizeof(*arr))
 
 #define DEFAULT_DELAY ((uint32_t)750)
-#define PRESSED_DELAY ((int)50)
+#define PRESSED_DELAY ((uint32_t)50)
 
 static uint16_t leds[] = {GPIO_PIN_12, GPIO_PIN_13, GPIO_PIN_14, GPIO_PIN_15};
 
 void reset_leds() {
-	for (int i = 0; i < arrlen(leds); i++)
+	for (int i = 0; i < ARRLEN(leds); i++)
 		HAL_GPIO_WritePin(GPIOD, leds[i], GPIO_PIN_RESET);
 }
 
 Circle init_circle() {
-  Circle circle = {.tick = HAL_GetTick(), .index = 0, .delay = DEFAULT_DELAY};
+  Circle circle = {.index = 0};
   return circle;
 }
 
-void animate_circle(uint32_t tick, Circle *circle) {
-	if (tick < circle->delay + circle->tick)
-		return;
-
-	circle->tick = tick;
-
+void animate_circle(Circle *circle) {
 	HAL_GPIO_WritePin(GPIOD, leds[circle->index], GPIO_PIN_RESET);
-	circle->index = (circle->index + 1) % arrlen(leds);
+	circle->index = (circle->index + 1) % ARRLEN(leds);
 	HAL_GPIO_WritePin(GPIOD, leds[circle->index], GPIO_PIN_SET);
 }
 
 Filling init_filling() {
-  Filling filling = {.tick = HAL_GetTick(), .state = GPIO_PIN_SET, .delay = DEFAULT_DELAY};
+  Filling filling = {.state = GPIO_PIN_SET};
   return filling;
 }
 
-void animate_filling(uint32_t tick, Filling *filling) {
-	if (tick < filling->delay + filling->tick)
-		return;
-
-	filling->tick = tick;
-
+void animate_filling(Filling *filling) {
 	filling->state = (filling->state + 1) % 2;
 
-	for (int i = 0; i < arrlen(leds); i++)
+	for (int i = 0; i < ARRLEN(leds); i++)
 		HAL_GPIO_WritePin(GPIOD, leds[i], filling->state);
 }
 
 Steps init_steps() {
-  Steps steps = {.tick = HAL_GetTick(), .dir = 1, .index = 0, .delay = DEFAULT_DELAY};
+  Steps steps = {.dir = 1, .index = 0};
   return steps;
 }
 
-void animate_steps(uint32_t tick, Steps *steps) {
-	if (tick < steps->delay + steps->tick)
-		return;
-
-	steps->tick = tick;
-
+void animate_steps(Steps *steps) {
 	GPIO_PinState state = steps->dir == 1 ? GPIO_PIN_SET : GPIO_PIN_RESET;
 
 	HAL_GPIO_WritePin(GPIOD, leds[steps->index], state);
 
 	steps->index += steps->dir;
 
-	if (steps->index == arrlen(leds) ||
+	if (steps->index == ARRLEN(leds) ||
       steps->index == -1) {
 		steps->dir *= -1;
 		steps->index += steps->dir;
@@ -70,32 +55,25 @@ void animate_steps(uint32_t tick, Steps *steps) {
 }
 
 Cross init_cross() {
-  Cross cross = {.tick = HAL_GetTick(), .index = 0, .delay = DEFAULT_DELAY};
+  Cross cross = {.index = 0};
   return cross;
 }
 
-void animate_cross(uint32_t tick, Cross *cross) {
-	if (tick < cross->delay + cross->tick)
-		return;
-
-	cross->tick = tick;
-
-	int first_i = cross->index % arrlen(leds);
-	int second_i = (cross->index + 2) % arrlen(leds);
+void animate_cross(Cross *cross) {
+	int first_i = cross->index % ARRLEN(leds);
+	int second_i = (cross->index + 2) % ARRLEN(leds);
 
 	HAL_GPIO_WritePin(GPIOD, leds[first_i], GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(GPIOD, leds[second_i], GPIO_PIN_RESET);
 
-	int third_i = (cross->index + 1) % arrlen(leds);
-	int fourth_i = (cross->index + 3) % arrlen(leds);
+	int third_i = (cross->index + 1) % ARRLEN(leds);
+	int fourth_i = (cross->index + 3) % ARRLEN(leds);
 
 	HAL_GPIO_WritePin(GPIOD, leds[third_i], GPIO_PIN_SET);
 	HAL_GPIO_WritePin(GPIOD, leds[fourth_i], GPIO_PIN_SET);
 
 	cross->index++;
 }
-
-#define animations_amount ((int)4)
 
 static int pressed = 0;
 static int pressed_tick = 1;
@@ -111,31 +89,28 @@ void next_animation() {
 }
 
 void update_animations_state(AnimationsState *state) {
-  state->index = (state->index + 1) % animations_amount;
+  state->index = (state->index + 1) % ANIMATIONS_AMOUNT;
   switch (state->index) {
-  case 0:
+  case kCircle:
     state->circle = init_circle();
-    state->circle.delay = state->delay;
     break;
-  case 1:
+  case kFilling:
     state->filling = init_filling();
-    state->filling.delay = state->delay;
     break;
-  case 2:
+  case kSteps:
     state->steps = init_steps();
-    state->steps.delay = state->delay;
     break;
-  case 3:
+  case kCross:
     state->cross = init_cross();
-    state->cross.delay = state->delay;
     break;
   };
 }
 
 AnimationsState init_animations_state() {
   AnimationsState state = {
-    .index = 0,
+    .index = kCircle,
     .circle = init_circle(),
+    .tick = HAL_GetTick(),
     .delay = DEFAULT_DELAY,
   };
   return state;
@@ -149,20 +124,25 @@ void animate(AnimationsState *state) {
   }
 
   uint32_t tick = HAL_GetTick();
+  if (tick < state->tick + state->delay)
+    return;
+
   switch (state->index) {
-  case 0:
-    animate_circle(tick, &state->circle);
+  case kCircle:
+    animate_circle(&state->circle);
     break;
-  case 1:
-    animate_filling(tick, &state->filling);
+  case kFilling:
+    animate_filling(&state->filling);
     break;
-  case 2:
-    animate_steps(tick, &state->steps);
+  case kSteps:
+    animate_steps(&state->steps);
     break;
-  case 3:
-    animate_cross(tick, &state->cross);
+  case kCross:
+    animate_cross(&state->cross);
     break;
-  };
+  }
+
+  state->tick = tick;
 
   if (pressed_pass)
     return;
