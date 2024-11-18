@@ -8,8 +8,8 @@
 static uint16_t leds[] = {GPIO_PIN_12, GPIO_PIN_13, GPIO_PIN_14, GPIO_PIN_15};
 
 void reset_leds() {
-	for (int i = 0; i < ARRLEN(leds); i++)
-		HAL_GPIO_WritePin(GPIOD, leds[i], GPIO_PIN_RESET);
+  for (int i = 0; i < ARRLEN(leds); i++)
+    HAL_GPIO_WritePin(GPIOD, leds[i], GPIO_PIN_RESET);
 }
 
 Circle init_circle() {
@@ -18,9 +18,9 @@ Circle init_circle() {
 }
 
 void animate_circle(Circle *circle) {
-	HAL_GPIO_WritePin(GPIOD, leds[circle->index], GPIO_PIN_RESET);
-	circle->index = (circle->index + 1) % ARRLEN(leds);
-	HAL_GPIO_WritePin(GPIOD, leds[circle->index], GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOD, leds[circle->index], GPIO_PIN_RESET);
+  circle->index = (circle->index + 1) % ARRLEN(leds);
+  HAL_GPIO_WritePin(GPIOD, leds[circle->index], GPIO_PIN_SET);
 }
 
 Filling init_filling() {
@@ -29,10 +29,10 @@ Filling init_filling() {
 }
 
 void animate_filling(Filling *filling) {
-	filling->state = (filling->state + 1) % 2;
+  filling->state = (filling->state + 1) % 2;
 
-	for (int i = 0; i < ARRLEN(leds); i++)
-		HAL_GPIO_WritePin(GPIOD, leds[i], filling->state);
+  for (int i = 0; i < ARRLEN(leds); i++)
+    HAL_GPIO_WritePin(GPIOD, leds[i], filling->state);
 }
 
 Steps init_steps() {
@@ -41,17 +41,17 @@ Steps init_steps() {
 }
 
 void animate_steps(Steps *steps) {
-	GPIO_PinState state = steps->dir == 1 ? GPIO_PIN_SET : GPIO_PIN_RESET;
+  GPIO_PinState state = steps->dir == 1 ? GPIO_PIN_SET : GPIO_PIN_RESET;
 
-	HAL_GPIO_WritePin(GPIOD, leds[steps->index], state);
+  HAL_GPIO_WritePin(GPIOD, leds[steps->index], state);
 
-	steps->index += steps->dir;
+  steps->index += steps->dir;
 
-	if (steps->index == ARRLEN(leds) ||
+  if (steps->index == ARRLEN(leds) ||
       steps->index == -1) {
-		steps->dir *= -1;
-		steps->index += steps->dir;
-	}
+    steps->dir *= -1;
+    steps->index += steps->dir;
+  }
 }
 
 Cross init_cross() {
@@ -60,19 +60,19 @@ Cross init_cross() {
 }
 
 void animate_cross(Cross *cross) {
-	int first_i = cross->index % ARRLEN(leds);
-	int second_i = (cross->index + 2) % ARRLEN(leds);
+  int first_i = cross->index % ARRLEN(leds);
+  int second_i = (cross->index + 2) % ARRLEN(leds);
 
-	HAL_GPIO_WritePin(GPIOD, leds[first_i], GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(GPIOD, leds[second_i], GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, leds[first_i], GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, leds[second_i], GPIO_PIN_RESET);
 
-	int third_i = (cross->index + 1) % ARRLEN(leds);
-	int fourth_i = (cross->index + 3) % ARRLEN(leds);
+  int third_i = (cross->index + 1) % ARRLEN(leds);
+  int fourth_i = (cross->index + 3) % ARRLEN(leds);
 
-	HAL_GPIO_WritePin(GPIOD, leds[third_i], GPIO_PIN_SET);
-	HAL_GPIO_WritePin(GPIOD, leds[fourth_i], GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOD, leds[third_i], GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOD, leds[fourth_i], GPIO_PIN_SET);
 
-	cross->index++;
+  cross->index++;
 }
 
 static int pressed = 0;
