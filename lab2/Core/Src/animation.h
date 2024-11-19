@@ -21,13 +21,13 @@ typedef struct {
 } Cross;
 
 typedef enum {
-  kCircle,
-  kFilling,
-  kSteps,
-  kCross
+  kAnimateCircle,
+  kAnimateFilling,
+  kAnimateSteps,
+  kAnimateCross
 } Animation;
 
-#define ANIMATIONS_AMOUNT (kCross + 1)
+#define ANIMATIONS_AMOUNT (kAnimateCross + 1)
 
 typedef struct {
   union {

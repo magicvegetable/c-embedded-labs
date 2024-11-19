@@ -91,16 +91,16 @@ void next_animation() {
 void update_animations_state(AnimationsState *state) {
   state->index = (state->index + 1) % ANIMATIONS_AMOUNT;
   switch (state->index) {
-  case kCircle:
+  case kAnimateCircle:
     state->circle = init_circle();
     break;
-  case kFilling:
+  case kAnimateFilling:
     state->filling = init_filling();
     break;
-  case kSteps:
+  case kAnimateSteps:
     state->steps = init_steps();
     break;
-  case kCross:
+  case kAnimateCross:
     state->cross = init_cross();
     break;
   };
@@ -108,7 +108,7 @@ void update_animations_state(AnimationsState *state) {
 
 AnimationsState init_animations_state() {
   AnimationsState state = {
-    .index = kCircle,
+    .index = kAnimateCircle,
     .circle = init_circle(),
     .tick = HAL_GetTick(),
     .delay = DEFAULT_DELAY,
@@ -128,16 +128,16 @@ void animate(AnimationsState *state) {
     return;
 
   switch (state->index) {
-  case kCircle:
+  case kAnimateCircle:
     animate_circle(&state->circle);
     break;
-  case kFilling:
+  case kAnimateFilling:
     animate_filling(&state->filling);
     break;
-  case kSteps:
+  case kAnimateSteps:
     animate_steps(&state->steps);
     break;
-  case kCross:
+  case kAnimateCross:
     animate_cross(&state->cross);
     break;
   }
