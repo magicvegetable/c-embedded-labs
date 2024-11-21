@@ -94,8 +94,6 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-  /* HAL_TIM_Base_Start_IT(&htim4); */
-  /* HAL_TIM_OC_Start(&htim4, TIM_CHANNEL_1); */
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
   TIM4->CCR1 = 78;
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
@@ -111,10 +109,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* for (int i = 0; i < ARRLEN(kLeds); i++) { */
-    /*   HAL_Delay(500); */
-    /*   HAL_GPIO_TogglePin(GPIOD, kLeds[i]); */
-    /* } */
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
