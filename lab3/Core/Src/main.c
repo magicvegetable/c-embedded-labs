@@ -97,13 +97,13 @@ int main(void)
   /* HAL_TIM_Base_Start_IT(&htim4); */
   /* HAL_TIM_OC_Start(&htim4, TIM_CHANNEL_1); */
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
-  TIM4->CCR1 = 780;
+  TIM4->CCR1 = 78;
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
-  TIM4->CCR2 = 410;
+  TIM4->CCR2 = 41;
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
-  TIM4->CCR3 = 840;
+  TIM4->CCR3 = 84;
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_4);
-  TIM4->CCR4 = 500;
+  TIM4->CCR4 = 50;
 
   /* USER CODE END 2 */
 
@@ -183,9 +183,9 @@ static void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 1 */
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 4734;
+  htim4.Init.Prescaler = 468;
   htim4.Init.CounterMode = TIM_COUNTERMODE_DOWN;
-  htim4.Init.Period = 1000;
+  htim4.Init.Period = 100;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
