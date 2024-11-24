@@ -36,7 +36,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+#define ARRLEN(arr) (sizeof(arr) / sizeof(*arr))
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -88,21 +88,19 @@ int main(void)
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
   const uint32_t delay = 1000;
-#define pins_amount ((int)4)
-  uint16_t pins[pins_amount] = {GPIO_PIN_12, GPIO_PIN_13, GPIO_PIN_14, GPIO_PIN_15};
+  uint16_t pins[] = {GPIO_PIN_12, GPIO_PIN_13, GPIO_PIN_14, GPIO_PIN_15};
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  for (int i = 0; i < pins_amount; i++) {
+	  for (int i = 0; i < ARRLEN(pins); i++) {
 		  uint16_t pin = pins[i];
 		  HAL_GPIO_WritePin(GPIOD, pin, GPIO_PIN_SET);
 		  HAL_Delay(delay);
 		  HAL_GPIO_WritePin(GPIOD, pin, GPIO_PIN_RESET);
 	  }
-#undef pins_amount
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

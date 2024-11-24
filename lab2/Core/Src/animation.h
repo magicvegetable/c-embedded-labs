@@ -42,7 +42,7 @@ typedef struct {
 } AnimationsState;
 
 void next_animation();
-AnimationsState init_animations_state();
+void init_animations_state(AnimationsState *state);
 void animate(AnimationsState *state);
 
 #endif /* SRC_ANIMATION_H_ */
