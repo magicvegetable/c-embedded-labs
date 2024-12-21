@@ -39,14 +39,38 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 
-#define LOG_STATE(huart, str, dtime) HAL_UART_Transmit(huart, (uint8_t*)str, sizeof(str) - 1, dtime)
-#define LOG_PIN_STATE(huart, NAME, dtime)                               \
-  do {                                                                  \
-    const uint16_t state = HAL_GPIO_ReadPin(GPIOD, LED_##NAME##_Pin);   \
-    if (state == GPIO_PIN_SET)                                          \
-      LOG_STATE(huart, " - " #NAME " ON\r\n", dtime);                   \
-    else                                                                \
-      LOG_STATE(huart, " - " #NAME " OFF\r\n", dtime);                  \
+#define LOG_STR(huart, str, dtime) HAL_UART_Transmit(huart, (uint8_t*)str, sizeof(str) - 1, dtime)
+
+#define LOG_PIN_STATE_IMPL(huart, pin, name, dtime) do {              \
+    const uint16_t state = HAL_GPIO_ReadPin(GPIOD, pin);              \
+    if (state == GPIO_PIN_SET)                                        \
+      LOG_STR(huart, " - " name " ON\r\n", dtime);                    \
+    else                                                              \
+      LOG_STR(huart, " - " name " OFF\r\n", dtime);                   \
+  } while (0)
+
+#define LOG_PIN_STATE(huart, pin, dtime) switch (pin) { \
+  case LED_GREEN_Pin:                                   \
+    LOG_PIN_STATE_IMPL(huart, pin, "GREEN", dtime);     \
+    break;                                              \
+  case LED_ORANGE_Pin:                                  \
+    LOG_PIN_STATE_IMPL(huart, pin, "ORANGE", dtime);    \
+    break;                                              \
+  case LED_RED_Pin:                                     \
+    LOG_PIN_STATE_IMPL(huart, pin, "RED", dtime);       \
+    break;                                              \
+  case LED_BLUE_Pin:                                    \
+    LOG_PIN_STATE_IMPL(huart, pin, "BLUE", dtime);      \
+    break;                                              \
+  }
+
+#define UNEXPECTED_STR_BEGIN " - Unexpected command '"
+#define UNEXPECTED_STR_END "'\r\n"
+
+#define LOG_UNEXPECTED_COMMAND(huart, command, dtime) do {          \
+    char str[] = UNEXPECTED_STR_BEGIN " " UNEXPECTED_STR_END;       \
+    str[sizeof(UNEXPECTED_STR_BEGIN) - 1] = (char)command;          \
+    LOG_STR(huart, str, dtime);                                     \
   } while (0)
 
 #define ARRLEN(arr) (sizeof(arr) / sizeof(*arr))
@@ -122,40 +146,38 @@ int main(void)
     switch (buffer[0]) {
     case '1':
       HAL_GPIO_TogglePin(GPIOD, LED_GREEN_Pin);
-      LOG_PIN_STATE(&huart3, GREEN, 100);
+      LOG_PIN_STATE(&huart3, LED_GREEN_Pin, 100);
       break;
 
     case '2':
       HAL_GPIO_TogglePin(GPIOD, LED_ORANGE_Pin);
-      LOG_PIN_STATE(&huart3, ORANGE, 100);
+      LOG_PIN_STATE(&huart3, LED_ORANGE_Pin, 100);
       break;
 
     case '3':
       HAL_GPIO_TogglePin(GPIOD, LED_RED_Pin);
-      LOG_PIN_STATE(&huart3, RED, 100);
+      LOG_PIN_STATE(&huart3, LED_RED_Pin, 100);
       break;
 
     case '4':
       HAL_GPIO_TogglePin(GPIOD, LED_BLUE_Pin);
-      LOG_PIN_STATE(&huart3, BLUE, 100);
+      LOG_PIN_STATE(&huart3, LED_BLUE_Pin, 100);
       break;
 
     case '5':
       for (int i = 0; i < ARRLEN(LEDS); i++)
         HAL_GPIO_WritePin(GPIOD, LEDS[i], GPIO_PIN_SET);
-      LOG_STATE(&huart3, " - All LEDs ON\r\n", 100);
+      LOG_STR(&huart3, " - All LEDs ON\r\n", 100);
       break;
 
     case '6':
       for (int i = 0; i < ARRLEN(LEDS); i++)
         HAL_GPIO_WritePin(GPIOD, LEDS[i], GPIO_PIN_RESET);
-      LOG_STATE(&huart3, " - All LEDs OFF\r\n", 100);
+      LOG_STR(&huart3, " - All LEDs OFF\r\n", 100);
       break;
 
     default:
-      LOG_STATE(&huart3, " - Unexpected command '", 100);
-      HAL_UART_Transmit(&huart3, buffer, 1, 100);
-      LOG_STATE(&huart3, "' \r\n", 100);
+      LOG_UNEXPECTED_COMMAND(&huart3, buffer[0], 100);
     }
     /* USER CODE END WHILE */
 
